@@ -39,11 +39,6 @@ seeds = sys.argv[1:]
 
 datamuse = "https://api.datamuse.com"
 synonyms, synonym_data = obtain('ml',seeds)
-rhymes, rhyme_data = obtain('rel_rhy',seeds)
-
-# If any of the rhymes are among any of the synonyms,
-# that results should immediately be promoted to the
-# top of the heap.
 
 limit = 10
 print("======== SYNONYM-BASED NAMES ========")
@@ -58,20 +53,29 @@ for i,seed in enumerate(seeds):
         print(name)
 
 print("========= RHYME-BASED NAMES =========")
-for i,seed in enumerate(seeds):
-    # For each of the first [limit] rhymes, generate a list of 
-    # words that tend to come before that rhyme.
-    rhyme_predecessors,predecessor_data = obtain('rel_bgb',rhymes[i][0:limit])
-    rhyme_predecessors = [remove_common_words(xs) for xs in rhyme_predecessors]
-    #pprint(rhyme_predecessors)
+rhymes, rhyme_data = obtain('rel_rhy',seeds)
 
-    rhyme_limit = int(round(limit/4.0))
-    for k in range(0,len(rhyme_predecessors)):
-        for pred_k in rhyme_predecessors[k][0:rhyme_limit]:
-            name = ""
-            for j,seed in enumerate(seeds):
-                if i != j:
-                    name = combine(name,seed)
-                else:
-                    name = combine(combine(name,pred_k),seed)
-            print(name)
+# If any of the rhymes are among any of the synonyms,
+# those results should immediately be promoted to the
+# top of the heap.
+
+
+
+if len(seeds) > 1:
+    for i,seed in enumerate(seeds):
+        # For each of the first [limit] rhymes, generate a list of 
+        # words that tend to come before that rhyme.
+        rhyme_predecessors,predecessor_data = obtain('rel_bgb',rhymes[i][0:limit])
+        rhyme_predecessors = [remove_common_words(xs) for xs in rhyme_predecessors]
+        #pprint(rhyme_predecessors)
+
+        rhyme_limit = int(round(limit/4.0))
+        for k in range(0,len(rhyme_predecessors)):
+            for pred_k in rhyme_predecessors[k][0:rhyme_limit]:
+                name = ""
+                for j,seed in enumerate(seeds):
+                    if i != j:
+                        name = combine(name,seed)
+                    else:
+                        name = combine(combine(name,pred_k),seed)
+                print(name)
