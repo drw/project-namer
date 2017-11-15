@@ -1,7 +1,20 @@
+# Experimental attempt to generate useful lists of potential
+# names for projects.
 import re,sys
 
 import requests
 from pprint import pprint
+
+def flatten(xs):
+    """Return the input list in flattened form."""
+    if len(xs) == 0:
+        return []
+    else:
+        head = xs[0]
+        if type(head) == list:
+            return flatten(head) + flatten(xs[1:])
+        else:
+            return [head] + flatten(xs[1:])
 
 def combine(aggregation,element):
     if aggregation == "":
@@ -57,9 +70,27 @@ rhymes, rhyme_data = obtain('rel_rhy',seeds)
 
 # If any of the rhymes are among any of the synonyms,
 # those results should immediately be promoted to the
-# top of the heap.
+# top of the heap. For example, seeding with 
+#       gear dog
+# yields a suggestion of
+#       cog-dog.
 
+top_rhyming_names = []
 
+for i in range(0,len(seeds)):
+    all_other_synonyms = flatten(synonyms[0:i]+synonyms[i+1:])
+    for rhyme in rhymes[i]:
+        if rhyme in all_other_synonyms:
+            name = combine(rhyme,seeds[i])
+            top_rhyming_names.append(name)
+            name = combine(seeds[i],rhyme)
+            top_rhyming_names.append(name)            
+
+if len(top_rhyming_names) > 0:
+    print(" *** Top rhyming names ***")
+    for trn in top_rhyming_names:
+        print(trn)
+    print(" *** END Top rhyming names ***")
 
 if len(seeds) > 1:
     for i,seed in enumerate(seeds):
