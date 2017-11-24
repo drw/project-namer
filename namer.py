@@ -75,6 +75,31 @@ rhymes, rhyme_data = obtain('rel_rhy',seeds)
 # yields a suggestion of
 #       cog-dog.
 
+# [X] Take "canine gear" and return "dog cog".
+# [ ] Next take "gear canine" and turn it into "cog dog".
+print("len(rhymes) = {}, len(rhymes[0]) = {}".format(len(rhymes),len(rhymes[0])))
+
+ssr_limit = 44
+sr_limit = 5
+synonym_synonym_rhymes = []
+for i,seed in enumerate(seeds):
+    synonym_rhyme_sets, synonym_rhyme_data = obtain('rel_rhy',synonyms[i][0:sr_limit])
+    # synonym_rhyme_sets has a list of rhymes for each of the sr_limit 
+    # synonyms.
+    for k in range(0,len(synonym_rhyme_sets)):
+        synonym_rhymes = synonym_rhyme_sets[k]
+        for syn_rhyme_k_m in synonym_rhymes:
+            name = ""
+            for j in range(i+1,len(seeds)):
+                if syn_rhyme_k_m in synonyms[j][0:ssr_limit]:
+                    name = combine(synonyms[i][k],syn_rhyme_k_m)
+                    synonym_synonym_rhymes.append(name)
+
+if len(synonym_synonym_rhymes) > 0:
+    print(" === Synonym-Synonym Rhymes === ")
+    pprint(synonym_synonym_rhymes)
+#############
+
 top_rhyming_names = []
 
 for i in range(0,len(seeds)):
@@ -92,21 +117,21 @@ if len(top_rhyming_names) > 0:
         print(trn)
     print(" *** END Top rhyming names ***")
 
-if len(seeds) > 1:
-    for i,seed in enumerate(seeds):
-        # For each of the first [limit] rhymes, generate a list of 
-        # words that tend to come before that rhyme.
-        rhyme_predecessors,predecessor_data = obtain('rel_bgb',rhymes[i][0:limit])
-        rhyme_predecessors = [remove_common_words(xs) for xs in rhyme_predecessors]
-        #pprint(rhyme_predecessors)
-
-        rhyme_limit = int(round(limit/4.0))
-        for k in range(0,len(rhyme_predecessors)):
-            for pred_k in rhyme_predecessors[k][0:rhyme_limit]:
-                name = ""
-                for j,seed in enumerate(seeds):
-                    if i != j:
-                        name = combine(name,seed)
-                    else:
-                        name = combine(combine(name,pred_k),seed)
-                print(name)
+#if len(seeds) > 1:
+#    for i,seed in enumerate(seeds):
+#        # For each of the first [limit] rhymes, generate a list of 
+#        # words that tend to come before that rhyme.
+#        rhyme_predecessors,predecessor_data = obtain('rel_bgb',rhymes[i][0:limit])
+#        rhyme_predecessors = [remove_common_words(xs) for xs in rhyme_predecessors]
+#        #pprint(rhyme_predecessors)
+#
+#        rhyme_limit = int(round(limit/4.0))
+#        for k in range(0,len(rhyme_predecessors)):
+#            for pred_k in rhyme_predecessors[k][0:rhyme_limit]:
+#                name = ""
+#                for j,seed in enumerate(seeds):
+#                    if i != j:
+#                        name = combine(name,seed)
+#                    else:
+#                        name = combine(combine(name,pred_k),seed)
+#                print(name)
