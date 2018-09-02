@@ -137,3 +137,54 @@ if len(top_rhyming_names) > 0:
 #                    else:
 #                        name = combine(combine(name,pred_k),seed)
 #                print(name)
+
+
+########## Homophone-based names ##########
+# Example: story => tale (synonym) => tail (synonym-homophone, though also a synonym-rhyme, I guess) => tailspin ==> talespin
+
+# > python namer.py story spin 
+# should produce somewhere in its output talespin
+
+#shex_limit = 44
+sh_limit = 2
+synonym_homophone_extensions = []
+for i,seed in enumerate(seeds):
+    #print(i,synonyms[i])
+    synonyms_plus = ([seed] + synonyms[i]) # plus the original seed
+    synonym_homophone_sets, synonym_homophone_data = obtain('rel_hom',synonyms_plus[0:sh_limit])
+    # synonym_homophone_sets has a list of homophones for each of the sr_limit 
+    # synonyms.
+    for k in range(0,len(synonym_homophone_sets)):
+        synonym_homophones = synonym_homophone_sets[k]
+        #print("   synonym_homophones = {}".format(synonym_homophones))
+        for syn_homophone_k_m in synonym_homophones:
+            #print("       s_h_k_m = {}".format(syn_homophone_k_m))
+            front_sets, front_data = obtain('sp',["{}*".format(syn_homophone_k_m)])
+            #pprint(front_sets) 
+            for front_compounds in front_sets: # This is a list of lists.
+                for front_compound in front_compounds:
+                # Split the compound word, taking away the original (synonyms_plus[k])
+                    original_word = syn_homophone_k_m
+                    extension = re.sub(original_word,'',front_compound)
+                    for j in range(0,len(synonyms)):
+                        if extension in synonyms[j]:
+                            name = synonyms_plus[k] + extension
+                            print("This one seems really good: {}".format(name))
+                            synonym_homophone_extensions.append(name)
+
+            back_sets, back_data = obtain('sp',["*{}".format(syn_homophone_k_m)])
+
+            for back_compounds in back_sets: # This is a list of lists.
+                for back_compound in back_compounds:
+                # Split the compound word, taking away the original (synonyms_plus[k])
+                    original_word = syn_homophone_k_m
+                    extension = re.sub(original_word,'',back_compound)
+                    for j in range(0,len(synonyms)):
+                        if extension in synonyms[j]:
+                            name = extension + synonyms_plus[k]
+                            print("This one seems really good: {}".format(name))
+                            synonym_homophone_extensions.append(name)
+
+if len(synonym_homophone_extensions) > 0:
+    print(" === Synonym-Homophone Extensions === ")
+    pprint(synonym_homophone_extensions)
