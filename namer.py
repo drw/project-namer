@@ -22,6 +22,8 @@ def combine(aggregation,element):
     return "{}-{}".format(aggregation,element)
 
 def obtain(endpoint,seeds):
+    # This function expects seeds to be a list.
+    assert type(seeds) == list
     xs = []
     x_data = []
     for seed in seeds:
